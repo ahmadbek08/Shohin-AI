@@ -1,4 +1,4 @@
-const API_KEY = "AQ.Ab8RN6K0ZXbSXzxkEC682Dskq-p4mKFMAW-RJlqovNNDioPz4g";
+const API_KEY = "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";
 
 const authScreen = document.getElementById("authScreen");
 const sidebar = document.getElementById("sidebar");
@@ -81,8 +81,7 @@ fileInput.addEventListener("change", function(e) {
     const reader = new FileReader();
     if (file.type.startsWith("image/")) {
         reader.onload = function(ev) {
-            const base64Data = ev.target.result.split(",")[1];
-            selectedFile = { name: file.name, type: file.type, base64: base64Data, url: ev.target.result };
+            selectedFile = { name: file.name, type: file.type, url: ev.target.result };
             preview.style.display = "block";
             preview.innerText = "🖼️ " + file.name + " (Attached)";
         };
@@ -101,7 +100,7 @@ function startVoice() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) { alert("Your browser does not support voice recognition."); return; }
     const rec = new SR();
-    rec.lang = navigator.language || "en-US";
+    rec.lang = "uz-UZ";
     const micBtn = document.getElementById("micBtn");
     micBtn.classList.add("recording");
     rec.onresult = function(e) {
@@ -181,34 +180,28 @@ async function sendMessage() {
     fileInput.value = "";
     preview.style.display = "none";
 
-    const parts = [];
-    if (fileCopy && fileCopy.base64) {
-        parts.push({ inlineData: { mimeType: fileCopy.type, data: fileCopy.base64 } });
-    } else if (fileCopy && fileCopy.text) {
+    if (fileCopy && fileCopy.text) {
         text += "\n\nAttached File Content:\n" + fileCopy.text;
     }
-    parts.push({ text: text || "Please analyze this attachment." });
-
-    const apiUrl = "https://googleapis.com";
-
 
     try {
-        const res = await fetch(apiUrl, {
+        const res = await fetch("https://groq.com", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "x-goog-api-key": API_KEY
+                "Authorization": "Bearer " + API_KEY
             },
             body: JSON.stringify({
-                systemInstruction: { 
-                    parts: [{ text: "Your name is SHOHIN AI. " }] 
-                },
-                contents: [{ parts: parts }]
+                model: "llama-3.3-70b-versatile",
+                messages: [
+                    { role: "system", content: "Your name is SHOHIN AI. Assist " + (currentUser ? currentUser.name : "User") + " in Uzbek, English, Russian, or Tajik. Be smart, fast, and helpful." },
+                    { role: "user", content: text || "Please analyze this attachment." }
+                ]
             })
         });
         const data = await res.json();
         if (data.error) { addMsg("API Error: " + data.error.message, "ai"); return; }
-        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response received.";
+        const reply = data.choices?.[0]?.message?.content || "No response received.";
         addMsg(reply, "ai");
         active.messages.push({ text: reply, role: "ai" });
         saveUserChats();
