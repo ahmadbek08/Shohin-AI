@@ -185,7 +185,8 @@ async function sendMessage() {
     }
 
     try {
-        const res = await fetch("https://groq.com", {
+                const res = await fetch("https://groq.com", {
+
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
