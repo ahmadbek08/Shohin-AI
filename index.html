@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHOHIN AI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="auth-screen" id="authScreen">
+    <div class="auth-card">
+        <div class="ai-logo" style="margin: 0 auto 15px;">
+            <img src="logo.jpg" alt="S" onerror="this.style.display='none'; this.parentElement.innerText='S';">
+        </div>
+        <h2>SHOHIN AI</h2>
+        <p>Sign in with your account to continue</p>
+        <input type="text" id="loginName" placeholder="Your Name ">
+        <input type="email" id="loginEmail" placeholder="Your Email ">
+        <button class="auth-btn" onclick="loginUser()">Continue</button>
+    </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h2>SHOHIN AI</h2>
+        <button onclick="toggleSidebar()">✕</button>
+    </div>
+
+    <button class="new-chat" onclick="newChat(); toggleSidebar();">＋ New Chat</button>
+
+    <div class="menu-list">
+        <div class="menu-item" onclick="newChat(); toggleSidebar();">💬 Chats</div>
+        <div class="menu-item" onclick="useTemplate('Help me organize a project: '); toggleSidebar();">📁 Projects</div>
+        <div class="menu-item" onclick="useTemplate('Write clean code for: '); toggleSidebar();">&lt;/&gt; Code</div>
+        <div class="menu-item" onclick="useTemplate('Create a detailed plan for: '); toggleSidebar();">❖ Artifacts</div>
+    </div>
+
+    <p class="section-title">RECENTS</p>
+    <div class="history" id="history"></div>
+
+    <div class="profile">
+        <p id="profileName">👤 User</p>
+        <p id="profileEmail" style="font-size: 12px; color: #64748b; margin-top: 3px;"></p>
+        <button onclick="logoutUser()" class="profile-btn" style="color: #f87171; border-color: #7f1d1d;">🚪 Log out</button>
+    </div>
+</aside>
+
+<header class="topbar">
+    <button onclick="toggleSidebar()">☰</button>
+    <div class="logo">SHOHIN AI</div>
+    <button onclick="newChat()">✎</button>
+</header>
+
+<main class="main">
+    <section class="welcome" id="welcome">
+        <div class="ai-logo">
+            <img src="logo.jpg" alt="S" onerror="this.style.display='none'; this.parentElement.innerText='S';">
+        </div>
+        <h1 id="welcomeTitle">Welcome to SHOHIN AI</h1>
+        
+        <span class="badge" id="userBadge"> SHOHIN AI</span>
+    </section>
+
+    <section class="chat-box" id="chatBox"></section>
+
+    <div class="input-wrapper">
+        <div class="preview" id="preview"></div>
+        <div class="input-box">
+            <button class="action-btn" onclick="document.getElementById('fileInput').click()" title="Upload Image or File">＋</button>
+            <input type="file" id="fileInput" accept="image/*,.txt,.js,.py,.html,.css,.json">
+            <input type="text" id="userInput" placeholder="Ask SHOHIN AI ..." autocomplete="off">
+            <button class="action-btn" id="micBtn" onclick="startVoice()" title="Voice Input">🎙</button>
+            <button class="action-btn send-btn" onclick="sendMessage()" title="Send">➤</button>
+        </div>
+    </div>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
