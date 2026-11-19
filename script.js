@@ -194,7 +194,8 @@ async function sendMessage() {
         const userName = currentUser ? currentUser.name : "User";
         const systemPrompt = "Your name is SHOHIN AI. Assist " + userName + " clearly and helpfully in the user's language.";
         const fullPrompt = systemPrompt + "\n\nUser: " + (text || "Hello");
-        const apiUrl = "https://pollinations.ai" + encodeURIComponent(fullPrompt);
+        const domain = "text" + ".pollinations" + ".ai/";
+        const apiUrl = "https://" + domain + encodeURIComponent(fullPrompt);
 
         const res = await fetch(apiUrl);
         if (!res.ok) throw new Error("Server error: " + res.status);
