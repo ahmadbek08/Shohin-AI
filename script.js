@@ -1,5 +1,3 @@
-const API_KEY = "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";
-
 const authScreen = document.getElementById("authScreen");
 const sidebar = document.getElementById("sidebar");
 const overlay = document.getElementById("overlay");
@@ -17,20 +15,20 @@ let currentChat = null;
 
 function checkAuth() {
     if (currentUser && currentUser.email) {
-        authScreen.style.display = "none";
+        if (authScreen) authScreen.style.display = "none";
         document.getElementById("profileName").innerText = "👤 " + currentUser.name;
         document.getElementById("profileEmail").innerText = currentUser.email;
-        
+
         const hour = new Date().getHours();
         let greeting = "Good morning";
         if (hour >= 12 && hour < 18) greeting = "Good afternoon";
         else if (hour >= 18) greeting = "Good evening";
-        
+
         document.getElementById("welcomeTitle").innerText = greeting + ", " + currentUser.name;
-        
+
         chats = JSON.parse(localStorage.getItem("shohinChats_" + currentUser.email) || "[]");
         renderHistory();
-    } else {
+    } else if (authScreen) {
         authScreen.style.display = "flex";
     }
 }
@@ -98,15 +96,20 @@ fileInput.addEventListener("change", function(e) {
 
 function startVoice() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) { alert("Your browser does not support voice recognition."); return; }
+    if (!SR) {
+        alert("Your browser does not support voice recognition.");
+        return;
+    }
     const rec = new SR();
-    rec.lang = "uz-UZ";
+    rec.lang = "en-US";
     const micBtn = document.getElementById("micBtn");
     micBtn.classList.add("recording");
     rec.onresult = function(e) {
         userInput.value += (userInput.value ? " " : "") + e.results[0][0].transcript;
     };
-    rec.onend = function() { micBtn.classList.remove("recording"); };
+    rec.onend = function() {
+        micBtn.classList.remove("recording");
+    };
     rec.start();
 }
 
@@ -116,7 +119,10 @@ function renderHistory() {
         const div = document.createElement("div");
         div.className = "history-item";
         div.innerText = "💬 " + c.title;
-        div.onclick = () => { loadChat(c.id); toggleSidebar(); };
+        div.onclick = () => {
+            loadChat(c.id);
+            toggleSidebar();
+        };
         historyBox.appendChild(div);
     });
 }
@@ -185,24 +191,15 @@ async function sendMessage() {
     }
 
     try {
-                const res = await fetch("https://groq.com", {
+        const userName = currentUser ? currentUser.name : "User";
+        const systemPrompt = "Your name is SHOHIN AI. Assist " + userName + " clearly and helpfully in the user's language.";
+        const fullPrompt = systemPrompt + "\n\nUser: " + (text || "Hello");
+        const apiUrl = "https://pollinations.ai" + encodeURIComponent(fullPrompt);
 
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + API_KEY
-            },
-            body: JSON.stringify({
-                model: "llama-3.3-70b-versatile",
-                messages: [
-                    { role: "system", content: "Your name is SHOHIN AI. Assist " + (currentUser ? currentUser.name : "User") + " in Uzbek, English, Russian, or Tajik. Be smart, fast, and helpful." },
-                    { role: "user", content: text || "Please analyze this attachment." }
-                ]
-            })
-        });
-        const data = await res.json();
-        if (data.error) { addMsg("API Error: " + data.error.message, "ai"); return; }
-        const reply = data.choices?.[0]?.message?.content || "No response received.";
+        const res = await fetch(apiUrl);
+        if (!res.ok) throw new Error("Server error: " + res.status);
+        const reply = await res.text();
+
         addMsg(reply, "ai");
         active.messages.push({ text: reply, role: "ai" });
         saveUserChats();
